@@ -1,19 +1,23 @@
+def mvn
 pipeline {
     agent any
+    tools {
+      maven 'Maven'
+      jdk 'JAVA_HOME'
+    }
     triggers {
         pollSCM '* * * * *'
     }
     stages {
-        stage('Build') {
+        stage('Maven Build') {
             steps {
-                sh 'mvn compile'
+               script {
+                 mvn= tool (name: 'Maven', type: 'maven') + '/bin/mvn'
+               }
+               sh "${mvn} clean install"
             }
         }
-         stage('Test') {
-            steps {
-                sh 'mvn clean install'
-            }
-        }
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t sithes/spring-boot-cicd:$BUILD_NUMBER .'
